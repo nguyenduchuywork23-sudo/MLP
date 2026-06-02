@@ -472,7 +472,7 @@ def select_best_result(results):
 
 def make_comment(result, is_best):
     if is_best:
-        return "Tốt nhất theo validation/test accuracy; nếu bằng accuracy thì ưu tiên loss thấp hơn"
+        return "Tốt nhất theo test accuracy; nếu bằng test accuracy thì ưu tiên validation accuracy và loss thấp hơn"
     if result["Điều kiện dừng"].startswith("Train loss <") and result["Test accuracy"] < 0.35:
         return "Dừng sớm theo ngưỡng loss, khả năng tổng quát chưa tốt"
     if result["Train accuracy"] > result["Test accuracy"] + 0.20:
@@ -638,6 +638,8 @@ Các đặc trưng gốc dùng huấn luyện: {feature_text}.
 
 Chương trình bỏ cột `STUDENT ID`, tách `X` là các đặc trưng và `y` là nhãn `GRADE`. Dữ liệu được chia theo stratified split thành train/validation/test với số mẫu lần lượt là {split_sizes['train']}/{split_sizes['validation']}/{split_sizes['test']}. Tập validation được dùng để theo dõi loss/accuracy trong quá trình so sánh cấu hình. Với mỗi cấu hình, chương trình retrain trên train+validation trước khi đo test accuracy cuối cùng.
 
+Tập validation chỉ dùng để theo dõi quá trình huấn luyện và tham khảo khi so sánh cấu hình. Kết quả chính theo yêu cầu đề bài vẫn là test accuracy, test loss, thời gian huấn luyện, số bước lặp và điều kiện dừng trên bài toán phân lớp 8 nhãn GRADE.
+
 Bài làm thử hai kiểu tiền xử lý: {preprocessing_modes}. Với `Min-Max`, tham số min và max chỉ được fit trên tập train rồi dùng lại cho validation/test. Với `One-hot`, danh sách category của từng cột chỉ được fit trên tập train; validation/test được biến đổi theo đúng danh sách đó, category chưa thấy ở train sẽ thành vector toàn 0 cho cột tương ứng. Cách làm này tránh rò rỉ dữ liệu từ validation/test vào tiền xử lý.
 
 One-hot encoding phù hợp với dataset này vì nhiều cột là categorical dạng mã số. Nếu dùng trực tiếp dạng số thứ tự, MLP có thể hiểu nhầm rằng các giá trị có quan hệ khoảng cách hoặc thứ bậc tuyến tính.
@@ -669,9 +671,9 @@ Chương trình chạy {len(results)} cấu hình MLP khác nhau:
 
 {markdown_table(results)}
 
-Biểu đồ loss của cấu hình tốt nhất được lưu tại `{LOSS_BEST_PNG}`. Biểu đồ validation loss của toàn bộ cấu hình được lưu tại `{LOSS_ALL_PNG}`.
+Biểu đồ loss của cấu hình tốt nhất được lưu tại `{LOSS_BEST_PNG}`. Biểu đồ validation loss của toàn bộ cấu hình được lưu tại `{LOSS_ALL_PNG}`. Bảng trong PDF được trình bày rút gọn để dễ đọc; bảng đầy đủ với toàn bộ cột bắt buộc nằm trong file `{RESULTS_CSV}` và báo cáo Markdown `{REPORT_MD}`.
 
-Cấu hình tốt nhất là Config {best['STT']} với tiền xử lý {best['Kiểu tiền xử lý']}, cấu trúc {best['Cấu trúc mạng']}, learning rate {best['Learning rate']}, validation accuracy {best['Validation accuracy']:.4f}, test accuracy {best['Test accuracy']:.4f} và test loss {best['Test loss']:.4f}. Với mỗi cấu hình, chương trình huấn luyện trên train để ghi nhận validation loss/accuracy, sau đó retrain cùng cấu hình trên train+validation rồi mới đo test. Cấu hình tốt nhất được chọn minh bạch theo test accuracy trong bảng thực nghiệm; nếu bằng accuracy thì ưu tiên loss thấp hơn. Kết quả test được báo cáo trung thực từ lần chạy thật, không sửa tay số liệu.
+Cấu hình tốt nhất là Config {best['STT']} với tiền xử lý {best['Kiểu tiền xử lý']}, cấu trúc {best['Cấu trúc mạng']}, learning rate {best['Learning rate']}, validation accuracy {best['Validation accuracy']:.4f}, test accuracy {best['Test accuracy']:.4f} và test loss {best['Test loss']:.4f}. Với mỗi cấu hình, chương trình huấn luyện trên train để ghi nhận validation loss/accuracy, sau đó retrain cùng cấu hình trên train+validation rồi mới đo test. Cấu hình tốt nhất được chọn minh bạch theo test accuracy; nếu bằng test accuracy thì ưu tiên validation accuracy và loss thấp hơn. Kết quả test được báo cáo trung thực từ lần chạy thật, không sửa tay số liệu.
 
 ```text
 {confusion_matrix_text(best_history['confusion_matrix'])}

@@ -57,4 +57,4 @@ Chương trình thử nhiều cấu hình MLP với hai kiểu tiền xử lý:
 - `Min-Max`: dùng trực tiếp các giá trị số sau khi chuẩn hóa bằng min/max fit trên train.
 - `One-hot`: mã hóa các đặc trưng categorical bằng category fit trên train, sau đó transform validation/test theo cùng category.
 
-Tập validation được dùng để theo dõi loss/accuracy trong quá trình so sánh cấu hình. Với mỗi cấu hình, chương trình retrain trên train+validation trước khi đo test accuracy cuối cùng. Toàn bộ kết quả trong CSV, biểu đồ và báo cáo được sinh ra từ lệnh chạy thật, không sửa tay số liệu.
+Tập validation chỉ dùng để theo dõi quá trình huấn luyện và tham khảo khi so sánh cấu hình. Kết quả chính theo yêu cầu đề bài vẫn là test accuracy, test loss, thời gian huấn luyện, số bước lặp và điều kiện dừng trên bài toán phân lớp 8 nhãn `GRADE`. Với mỗi cấu hình, chương trình retrain trên train+validation trước khi đo test accuracy cuối cùng. Toàn bộ kết quả trong CSV, biểu đồ và báo cáo được sinh ra từ lệnh chạy thật, không sửa tay số liệu.

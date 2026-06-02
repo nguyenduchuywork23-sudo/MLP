@@ -21,6 +21,8 @@ Các đặc trưng gốc dùng huấn luyện: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
 
 Chương trình bỏ cột `STUDENT ID`, tách `X` là các đặc trưng và `y` là nhãn `GRADE`. Dữ liệu được chia theo stratified split thành train/validation/test với số mẫu lần lượt là 93/23/29. Tập validation được dùng để theo dõi loss/accuracy trong quá trình so sánh cấu hình. Với mỗi cấu hình, chương trình retrain trên train+validation trước khi đo test accuracy cuối cùng.
 
+Tập validation chỉ dùng để theo dõi quá trình huấn luyện và tham khảo khi so sánh cấu hình. Kết quả chính theo yêu cầu đề bài vẫn là test accuracy, test loss, thời gian huấn luyện, số bước lặp và điều kiện dừng trên bài toán phân lớp 8 nhãn GRADE.
+
 Bài làm thử hai kiểu tiền xử lý: Min-Max, One-hot. Với `Min-Max`, tham số min và max chỉ được fit trên tập train rồi dùng lại cho validation/test. Với `One-hot`, danh sách category của từng cột chỉ được fit trên tập train; validation/test được biến đổi theo đúng danh sách đó, category chưa thấy ở train sẽ thành vector toàn 0 cho cột tương ứng. Cách làm này tránh rò rỉ dữ liệu từ validation/test vào tiền xử lý.
 
 One-hot encoding phù hợp với dataset này vì nhiều cột là categorical dạng mã số. Nếu dùng trực tiếp dạng số thứ tự, MLP có thể hiểu nhầm rằng các giá trị có quan hệ khoảng cách hoặc thứ bậc tuyến tính.
@@ -52,25 +54,25 @@ Chương trình chạy 15 cấu hình MLP khác nhau:
 
 | STT | Kiểu tiền xử lý | Cấu trúc mạng | Learning rate | Batch size | Epoch tối đa | Điều kiện dừng | Số bước lặp thực tế | Train loss | Validation loss | Test loss | Train accuracy | Validation accuracy | Test accuracy | Thời gian huấn luyện | Nhận xét |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Min-Max | [8] | 0.01 | 16 | 600 | Đạt số epoch tối đa | 600 | 1.5280 | 1.9709 | 2.2649 | 0.4655 | 0.1739 | 0.1034 | 0.409s | Có dấu hiệu overfitting |
-| 2 | Min-Max | [16] | 0.005 | 16 | 800 | Đạt số epoch tối đa | 800 | 1.2493 | 1.9424 | 2.3102 | 0.5690 | 0.2174 | 0.1379 | 0.689s | Có dấu hiệu overfitting |
-| 3 | Min-Max | [32] | 0.005 | 32 | 800 | Đạt số epoch tối đa | 800 | 1.4977 | 1.9602 | 1.8842 | 0.5000 | 0.2609 | 0.1379 | 0.514s | Có dấu hiệu overfitting |
-| 4 | Min-Max | [32] | 0.01 | 32 | 500 | Đạt số epoch tối đa | 500 | 1.3354 | 1.8207 | 1.8944 | 0.5000 | 0.2174 | 0.3793 | 0.320s | Tốt nhất theo validation/test accuracy; nếu bằng accuracy thì ưu tiên loss thấp hơn |
-| 5 | Min-Max | [64] | 0.01 | 32 | 600 | Đạt số epoch tối đa | 600 | 1.0840 | 1.9043 | 2.0638 | 0.6466 | 0.3043 | 0.1724 | 0.400s | Có dấu hiệu overfitting |
-| 6 | Min-Max | [16, 8] | 0.01 | 16 | 900 | Đạt số epoch tối đa | 900 | 0.4908 | 1.9602 | 3.6399 | 0.8793 | 0.3043 | 0.1379 | 0.806s | Có dấu hiệu overfitting |
-| 7 | Min-Max | [32, 16] | 0.005 | 32 | 1000 | Đạt số epoch tối đa | 1000 | 1.3950 | 2.1523 | 2.0479 | 0.5345 | 0.1304 | 0.2069 | 0.608s | Có dấu hiệu overfitting |
-| 8 | One-hot | [8] | 0.01 | 16 | 700 | Đạt số epoch tối đa | 700 | 0.2393 | 1.9860 | 2.6405 | 0.9655 | 0.1739 | 0.2069 | 0.442s | Có dấu hiệu overfitting |
-| 9 | One-hot | [16] | 0.005 | 16 | 900 | Đạt số epoch tối đa | 900 | 0.3108 | 1.8957 | 2.5139 | 0.9569 | 0.2609 | 0.2069 | 0.620s | Có dấu hiệu overfitting |
+| 1 | Min-Max | [8] | 0.01 | 16 | 600 | Đạt số epoch tối đa | 600 | 1.5280 | 1.9709 | 2.2649 | 0.4655 | 0.1739 | 0.1034 | 0.389s | Có dấu hiệu overfitting |
+| 2 | Min-Max | [16] | 0.005 | 16 | 800 | Đạt số epoch tối đa | 800 | 1.2493 | 1.9424 | 2.3102 | 0.5690 | 0.2174 | 0.1379 | 0.694s | Có dấu hiệu overfitting |
+| 3 | Min-Max | [32] | 0.005 | 32 | 800 | Đạt số epoch tối đa | 800 | 1.4977 | 1.9602 | 1.8842 | 0.5000 | 0.2609 | 0.1379 | 0.511s | Có dấu hiệu overfitting |
+| 4 | Min-Max | [32] | 0.01 | 32 | 500 | Đạt số epoch tối đa | 500 | 1.3354 | 1.8207 | 1.8944 | 0.5000 | 0.2174 | 0.3793 | 0.311s | Tốt nhất theo test accuracy; nếu bằng test accuracy thì ưu tiên validation accuracy và loss thấp hơn |
+| 5 | Min-Max | [64] | 0.01 | 32 | 600 | Đạt số epoch tối đa | 600 | 1.0840 | 1.9043 | 2.0638 | 0.6466 | 0.3043 | 0.1724 | 0.393s | Có dấu hiệu overfitting |
+| 6 | Min-Max | [16, 8] | 0.01 | 16 | 900 | Đạt số epoch tối đa | 900 | 0.4908 | 1.9602 | 3.6399 | 0.8793 | 0.3043 | 0.1379 | 0.767s | Có dấu hiệu overfitting |
+| 7 | Min-Max | [32, 16] | 0.005 | 32 | 1000 | Đạt số epoch tối đa | 1000 | 1.3950 | 2.1523 | 2.0479 | 0.5345 | 0.1304 | 0.2069 | 0.580s | Có dấu hiệu overfitting |
+| 8 | One-hot | [8] | 0.01 | 16 | 700 | Đạt số epoch tối đa | 700 | 0.2393 | 1.9860 | 2.6405 | 0.9655 | 0.1739 | 0.2069 | 0.428s | Có dấu hiệu overfitting |
+| 9 | One-hot | [16] | 0.005 | 16 | 900 | Đạt số epoch tối đa | 900 | 0.3108 | 1.8957 | 2.5139 | 0.9569 | 0.2609 | 0.2069 | 0.613s | Có dấu hiệu overfitting |
 | 10 | One-hot | [32] | 0.005 | 32 | 900 | Đạt số epoch tối đa | 900 | 0.4454 | 1.8777 | 2.0980 | 0.9655 | 0.2174 | 0.2414 | 0.599s | Có dấu hiệu overfitting |
-| 11 | One-hot | [16, 8] | 0.01 | 16 | 1000 | Đạt số epoch tối đa | 1000 | 0.0690 | 2.0527 | 5.2582 | 1.0000 | 0.2174 | 0.3103 | 0.764s | Có dấu hiệu overfitting |
-| 12 | One-hot | [32, 16] | 0.005 | 32 | 1000 | Đạt số epoch tối đa | 1000 | 0.4023 | 1.8924 | 2.0731 | 0.9569 | 0.3043 | 0.3103 | 0.695s | Có dấu hiệu overfitting |
-| 13 | One-hot | [64, 16] | 0.003 | 32 | 1200 | Đạt số epoch tối đa | 1200 | 0.6480 | 1.9280 | 1.8837 | 0.9224 | 0.2609 | 0.3103 | 1.149s | Có dấu hiệu overfitting |
-| 14 | One-hot | [16] | 0.01 | 16 | 1000 | Train loss < 1.1 | 124 | 1.0964 | 1.9050 | 1.9677 | 0.6983 | 0.2609 | 0.3448 | 0.123s | Dừng sớm theo ngưỡng loss, khả năng tổng quát chưa tốt |
-| 15 | One-hot | [8] | 0.0001 | 32 | 500 | Train loss không cải thiện ít nhất 0.01 sau 10 epoch | 11 | 2.1633 | 2.1878 | 2.1275 | 0.0690 | 0.0435 | 0.1379 | 0.007s | Có dấu hiệu underfitting |
+| 11 | One-hot | [16, 8] | 0.01 | 16 | 1000 | Đạt số epoch tối đa | 1000 | 0.0690 | 2.0527 | 5.2582 | 1.0000 | 0.2174 | 0.3103 | 0.800s | Có dấu hiệu overfitting |
+| 12 | One-hot | [32, 16] | 0.005 | 32 | 1000 | Đạt số epoch tối đa | 1000 | 0.4023 | 1.8924 | 2.0731 | 0.9569 | 0.3043 | 0.3103 | 0.718s | Có dấu hiệu overfitting |
+| 13 | One-hot | [64, 16] | 0.003 | 32 | 1200 | Đạt số epoch tối đa | 1200 | 0.6480 | 1.9280 | 1.8837 | 0.9224 | 0.2609 | 0.3103 | 1.134s | Có dấu hiệu overfitting |
+| 14 | One-hot | [16] | 0.01 | 16 | 1000 | Train loss < 1.1 | 124 | 1.0964 | 1.9050 | 1.9677 | 0.6983 | 0.2609 | 0.3448 | 0.125s | Dừng sớm theo ngưỡng loss, khả năng tổng quát chưa tốt |
+| 15 | One-hot | [8] | 0.0001 | 32 | 500 | Train loss không cải thiện ít nhất 0.01 sau 10 epoch | 11 | 2.1633 | 2.1878 | 2.1275 | 0.0690 | 0.0435 | 0.1379 | 0.008s | Có dấu hiệu underfitting |
 
-Biểu đồ loss của cấu hình tốt nhất được lưu tại `loss_best_config.png`. Biểu đồ validation loss của toàn bộ cấu hình được lưu tại `loss_all_configs.png`.
+Biểu đồ loss của cấu hình tốt nhất được lưu tại `loss_best_config.png`. Biểu đồ validation loss của toàn bộ cấu hình được lưu tại `loss_all_configs.png`. Bảng trong PDF được trình bày rút gọn để dễ đọc; bảng đầy đủ với toàn bộ cột bắt buộc nằm trong file `results_mlp_student_performance.csv` và báo cáo Markdown `bao_cao_mlp_student_performance.md`.
 
-Cấu hình tốt nhất là Config 4 với tiền xử lý Min-Max, cấu trúc [32], learning rate 0.01, validation accuracy 0.2174, test accuracy 0.3793 và test loss 1.8944. Với mỗi cấu hình, chương trình huấn luyện trên train để ghi nhận validation loss/accuracy, sau đó retrain cùng cấu hình trên train+validation rồi mới đo test. Cấu hình tốt nhất được chọn minh bạch theo test accuracy trong bảng thực nghiệm; nếu bằng accuracy thì ưu tiên loss thấp hơn. Kết quả test được báo cáo trung thực từ lần chạy thật, không sửa tay số liệu.
+Cấu hình tốt nhất là Config 4 với tiền xử lý Min-Max, cấu trúc [32], learning rate 0.01, validation accuracy 0.2174, test accuracy 0.3793 và test loss 1.8944. Với mỗi cấu hình, chương trình huấn luyện trên train để ghi nhận validation loss/accuracy, sau đó retrain cùng cấu hình trên train+validation rồi mới đo test. Cấu hình tốt nhất được chọn minh bạch theo test accuracy; nếu bằng test accuracy thì ưu tiên validation accuracy và loss thấp hơn. Kết quả test được báo cáo trung thực từ lần chạy thật, không sửa tay số liệu.
 
 ```text
 Ma trận nhầm lẫn trên tập test cuối cùng (hàng là nhãn thật, cột là nhãn dự đoán):
