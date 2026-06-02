@@ -1,0 +1,6 @@
+﻿STT,Cấu trúc mạng,Learning rate,Epoch tối đa,Điều kiện dừng,Số bước lặp thực tế,Train loss,Test loss,Train accuracy,Test accuracy,Thời gian huấn luyện,Nhận xét
+1,[16],0.01,500,Đạt số epoch tối đa,500,1.546186,1.763581,0.474138,0.310345,0.171778,Kết quả trung bình
+2,[32],0.01,500,Đạt số epoch tối đa,500,1.334423,1.892092,0.517241,0.379310,0.251205,Tốt nhất theo test accuracy và test loss
+3,"[32, 16]",0.01,1000,Đạt số epoch tối đa,1000,0.610911,2.069556,0.862069,0.310345,0.474331,Có dấu hiệu overfitting
+4,"[64, 32]",0.005,1000,Đạt số epoch tối đa,1000,0.855079,1.989793,0.793103,0.275862,0.547799,Có dấu hiệu overfitting
+5,"[64, 32, 16]",0.001,1500,Đạt số epoch tối đa,1500,1.677091,2.035119,0.431034,0.172414,0.902099,Có dấu hiệu overfitting
