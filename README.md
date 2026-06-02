@@ -2,6 +2,9 @@
 
 Repo này cài đặt mạng nơ-ron nhân tạo đa lớp MLP từ đầu bằng `numpy` để phân lớp bộ dữ liệu `Student performance.csv`. Bài làm không dùng `sklearn`, `tensorflow`, `keras`, `pytorch` hoặc mô hình/classifier ML có sẵn.
 
+**Sinh viên:** Nguyễn Đức Huy  
+**Mã sinh viên:** BIT220079
+
 ## Cấu trúc file
 
 - `mlp_student_performance.py`: code nguồn chính, gồm đọc dữ liệu, tiền xử lý, cài đặt MLP, huấn luyện, đánh giá, vẽ biểu đồ và tạo báo cáo.
@@ -42,5 +45,16 @@ Mô hình trong `mlp_student_performance.py` tự cài đặt các thành phần
 - Cross Entropy Loss.
 - Backpropagation.
 - Mini-batch Gradient Descent.
+- L2 regularization nhẹ.
+- Learning rate decay đơn giản.
 
-Các bước tiền xử lý như chia train/test, Min-Max Scaling, one-hot encoding, accuracy và confusion matrix cũng được tự cài đặt, không dùng hàm có sẵn từ thư viện học máy.
+Các bước tiền xử lý như chia train/validation/test, Min-Max Scaling, one-hot encoding categorical, accuracy và confusion matrix cũng được tự cài đặt, không dùng hàm có sẵn từ thư viện học máy.
+
+## Thực nghiệm
+
+Chương trình thử nhiều cấu hình MLP với hai kiểu tiền xử lý:
+
+- `Min-Max`: dùng trực tiếp các giá trị số sau khi chuẩn hóa bằng min/max fit trên train.
+- `One-hot`: mã hóa các đặc trưng categorical bằng category fit trên train, sau đó transform validation/test theo cùng category.
+
+Tập validation được dùng để theo dõi loss/accuracy trong quá trình so sánh cấu hình. Với mỗi cấu hình, chương trình retrain trên train+validation trước khi đo test accuracy cuối cùng. Toàn bộ kết quả trong CSV, biểu đồ và báo cáo được sinh ra từ lệnh chạy thật, không sửa tay số liệu.
