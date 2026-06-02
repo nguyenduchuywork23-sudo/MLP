@@ -12,6 +12,9 @@ Repo này cài đặt mạng nơ-ron nhân tạo đa lớp MLP từ đầu bằn
 - `results_mlp_student_performance.csv`: bảng kết quả thực nghiệm.
 - `loss_best_config.png`: biểu đồ train/test loss của cấu hình tốt nhất.
 - `loss_all_configs.png`: biểu đồ train loss của toàn bộ cấu hình.
+- `test_accuracy_comparison.png`: biểu đồ cột so sánh Test accuracy của các cấu hình.
+- `test_loss_comparison.png`: biểu đồ cột so sánh Test loss của các cấu hình.
+- `confusion_matrix_best.png`: heatmap ma trận nhầm lẫn của cấu hình tốt nhất.
 - `bao_cao_mlp_student_performance.md`: báo cáo dạng Markdown.
 - `bao_cao_mlp_student_performance.pdf`: báo cáo PDF.
 
@@ -32,6 +35,9 @@ Sau khi chạy, chương trình sẽ tạo lại các file đầu ra:
 - `results_mlp_student_performance.csv`
 - `loss_best_config.png`
 - `loss_all_configs.png`
+- `test_accuracy_comparison.png`
+- `test_loss_comparison.png`
+- `confusion_matrix_best.png`
 - `bao_cao_mlp_student_performance.md`
 - `bao_cao_mlp_student_performance.pdf`
 

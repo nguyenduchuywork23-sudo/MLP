@@ -14,6 +14,9 @@ DATA_FILE = "Student performance.csv"
 RESULTS_CSV = "results_mlp_student_performance.csv"
 LOSS_BEST_PNG = "loss_best_config.png"
 LOSS_ALL_PNG = "loss_all_configs.png"
+TEST_ACC_PNG = "test_accuracy_comparison.png"
+TEST_LOSS_PNG = "test_loss_comparison.png"
+CONFUSION_MATRIX_PNG = "confusion_matrix_best.png"
 REPORT_MD = "bao_cao_mlp_student_performance.md"
 REPORT_PDF = "bao_cao_mlp_student_performance.pdf"
 
@@ -584,6 +587,68 @@ def plot_loss_curves(histories, best_index):
     plt.close()
 
 
+def plot_metric_comparisons(results, histories, best_index):
+    config_labels = [f"C{result['STT']}" for result in results]
+    test_accuracies = [result["Test accuracy"] for result in results]
+    test_losses = [result["Test loss"] for result in results]
+    best_label = config_labels[best_index]
+
+    colors = ["#4c78a8"] * len(results)
+    colors[best_index] = "#f58518"
+
+    plt.figure(figsize=(11, 5.5))
+    bars = plt.bar(config_labels, test_accuracies, color=colors)
+    plt.xlabel("Cấu hình")
+    plt.ylabel("Test accuracy")
+    plt.title("So sánh Test accuracy của 15 cấu hình MLP")
+    plt.ylim(0, max(test_accuracies) + 0.12)
+    plt.grid(axis="y", alpha=0.3)
+    for bar, value in zip(bars, test_accuracies):
+        plt.text(bar.get_x() + bar.get_width() / 2, value + 0.01, f"{value:.3f}", ha="center", fontsize=8)
+    plt.text(0.01, 0.95, f"Tốt nhất: {best_label}", transform=plt.gca().transAxes, fontsize=9)
+    plt.tight_layout()
+    plt.savefig(TEST_ACC_PNG, dpi=160)
+    plt.close()
+
+    plt.figure(figsize=(11, 5.5))
+    bars = plt.bar(config_labels, test_losses, color=colors)
+    plt.xlabel("Cấu hình")
+    plt.ylabel("Test loss")
+    plt.title("So sánh Test loss của 15 cấu hình MLP")
+    plt.ylim(0, max(test_losses) + 0.35)
+    plt.grid(axis="y", alpha=0.3)
+    for bar, value in zip(bars, test_losses):
+        plt.text(bar.get_x() + bar.get_width() / 2, value + 0.04, f"{value:.2f}", ha="center", fontsize=8)
+    plt.text(0.01, 0.95, f"Tốt nhất theo accuracy: {best_label}", transform=plt.gca().transAxes, fontsize=9)
+    plt.tight_layout()
+    plt.savefig(TEST_LOSS_PNG, dpi=160)
+    plt.close()
+
+    matrix = histories[best_index]["confusion_matrix"]
+    labels = [f"{grade}\n{GRADE_NAMES[grade]}" for grade in range(matrix.shape[0])]
+    fig, ax = plt.subplots(figsize=(8, 6.5))
+    image = ax.imshow(matrix, cmap="Blues")
+    ax.set_title(f"Confusion matrix - cấu hình tốt nhất {best_label}")
+    ax.set_xlabel("Nhãn dự đoán")
+    ax.set_ylabel("Nhãn thật")
+    ax.set_xticks(np.arange(matrix.shape[1]))
+    ax.set_yticks(np.arange(matrix.shape[0]))
+    ax.set_xticklabels(labels, fontsize=8)
+    ax.set_yticklabels(labels, fontsize=8)
+    plt.setp(ax.get_xticklabels(), rotation=0, ha="center")
+
+    threshold = matrix.max() / 2.0 if matrix.max() > 0 else 0
+    for i in range(matrix.shape[0]):
+        for j in range(matrix.shape[1]):
+            color = "white" if matrix[i, j] > threshold else "black"
+            ax.text(j, i, str(matrix[i, j]), ha="center", va="center", color=color, fontsize=9)
+
+    fig.colorbar(image, ax=ax, fraction=0.046, pad=0.04)
+    fig.tight_layout()
+    fig.savefig(CONFUSION_MATRIX_PNG, dpi=160)
+    plt.close(fig)
+
+
 def markdown_table(results):
     headers = list(results[0].keys())
     lines = ["| " + " | ".join(headers) + " |", "| " + " | ".join(["---"] * len(headers)) + " |"]
@@ -662,6 +727,7 @@ File `mlp_student_performance.py` gồm các phần chính:
 - `MLPClassifierScratch`: cài đặt MLP từ đầu, gồm khởi tạo trọng số, forward propagation, ReLU, Softmax, Cross Entropy, backpropagation, L2 nhẹ và cập nhật Mini-batch Gradient Descent.
 - `run_experiments`: chạy nhiều cấu hình mạng, ghi nhận validation metrics và test metrics sau retrain.
 - `plot_loss_curves`: vẽ biểu đồ loss.
+- `plot_metric_comparisons`: vẽ biểu đồ Test accuracy, Test loss và confusion matrix của cấu hình tốt nhất.
 
 Điều kiện dừng gồm: đạt số epoch tối đa, loss nhỏ hơn ngưỡng cho trước, hoặc validation/train loss không cải thiện sau một số epoch `patience` với ngưỡng cải thiện tối thiểu `min_delta`.
 
@@ -671,7 +737,7 @@ Chương trình chạy {len(results)} cấu hình MLP khác nhau:
 
 {markdown_table(results)}
 
-Biểu đồ loss của cấu hình tốt nhất được lưu tại `{LOSS_BEST_PNG}`. Biểu đồ validation loss của toàn bộ cấu hình được lưu tại `{LOSS_ALL_PNG}`. Bảng trong PDF được trình bày rút gọn để dễ đọc; bảng đầy đủ với toàn bộ cột bắt buộc nằm trong file `{RESULTS_CSV}` và báo cáo Markdown `{REPORT_MD}`.
+Biểu đồ loss của cấu hình tốt nhất được lưu tại `{LOSS_BEST_PNG}`. Biểu đồ validation loss của toàn bộ cấu hình được lưu tại `{LOSS_ALL_PNG}`. Biểu đồ Test accuracy `{TEST_ACC_PNG}` dùng để so sánh khả năng phân loại của các cấu hình. Biểu đồ Test loss `{TEST_LOSS_PNG}` dùng để so sánh sai số của các cấu hình. Confusion matrix `{CONFUSION_MATRIX_PNG}` cho thấy mô hình dự đoán đúng/sai trên từng lớp GRADE. Bảng trong PDF được trình bày rút gọn để dễ đọc; bảng đầy đủ với toàn bộ cột bắt buộc nằm trong file `{RESULTS_CSV}` và báo cáo Markdown `{REPORT_MD}`.
 
 Cấu hình tốt nhất là Config {best['STT']} với tiền xử lý {best['Kiểu tiền xử lý']}, cấu trúc {best['Cấu trúc mạng']}, learning rate {best['Learning rate']}, validation accuracy {best['Validation accuracy']:.4f}, test accuracy {best['Test accuracy']:.4f} và test loss {best['Test loss']:.4f}. Với mỗi cấu hình, chương trình huấn luyện trên train để ghi nhận validation loss/accuracy, sau đó retrain cùng cấu hình trên train+validation rồi mới đo test. Cấu hình tốt nhất được chọn minh bạch theo test accuracy; nếu bằng test accuracy thì ưu tiên validation accuracy và loss thấp hơn. Kết quả test được báo cáo trung thực từ lần chạy thật, không sửa tay số liệu.
 
@@ -791,7 +857,7 @@ def write_report_pdf(report_text, results, best_index, output_path):
         pdf.savefig(fig)
         plt.close(fig)
 
-        for image_path in [LOSS_BEST_PNG, LOSS_ALL_PNG]:
+        for image_path in [LOSS_BEST_PNG, LOSS_ALL_PNG, TEST_ACC_PNG, TEST_LOSS_PNG, CONFUSION_MATRIX_PNG]:
             if Path(image_path).exists():
                 fig = plt.figure(figsize=(11.69, 8.27))
                 image = plt.imread(image_path)
@@ -846,6 +912,7 @@ def main():
 
     save_results_csv(results, base_dir / RESULTS_CSV)
     plot_loss_curves(histories, best_index)
+    plot_metric_comparisons(results, histories, best_index)
     report_text = build_report_text(df, list(feature_df.columns), split_sizes, results, histories, best_index)
     write_report_markdown(report_text, base_dir / REPORT_MD)
     write_report_pdf(report_text, results, best_index, base_dir / REPORT_PDF)
@@ -861,6 +928,9 @@ def main():
     print(f"- {RESULTS_CSV}")
     print(f"- {LOSS_BEST_PNG}")
     print(f"- {LOSS_ALL_PNG}")
+    print(f"- {TEST_ACC_PNG}")
+    print(f"- {TEST_LOSS_PNG}")
+    print(f"- {CONFUSION_MATRIX_PNG}")
     print(f"- {REPORT_MD}")
     print(f"- {REPORT_PDF}")
 
