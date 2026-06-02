@@ -10,8 +10,8 @@ Repo này cài đặt mạng nơ-ron nhân tạo đa lớp MLP từ đầu bằn
 - `mlp_student_performance.py`: code nguồn chính, gồm đọc dữ liệu, tiền xử lý, cài đặt MLP, huấn luyện, đánh giá, vẽ biểu đồ và tạo báo cáo.
 - `Student performance.csv`: dữ liệu Student Performance.
 - `results_mlp_student_performance.csv`: bảng kết quả thực nghiệm.
-- `loss_best_config.png`: biểu đồ train/test loss của cấu hình tốt nhất.
-- `loss_all_configs.png`: biểu đồ train loss của toàn bộ cấu hình.
+- `loss_best_config.png`: biểu đồ train/validation loss của cấu hình tốt nhất.
+- `loss_all_configs.png`: biểu đồ validation loss của toàn bộ cấu hình.
 - `test_accuracy_comparison.png`: biểu đồ cột so sánh Test accuracy của các cấu hình.
 - `test_loss_comparison.png`: biểu đồ cột so sánh Test loss của các cấu hình.
 - `confusion_matrix_best.png`: heatmap ma trận nhầm lẫn của cấu hình tốt nhất.
