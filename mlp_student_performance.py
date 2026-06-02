@@ -236,7 +236,7 @@ class MLPClassifierScratch:
                 no_improvement_count += 1
 
             if no_improvement_count >= patience:
-                stop_reason = f"Loss không cải thiện sau {patience} epoch"
+                stop_reason = f"Loss không cải thiện ít nhất {min_delta} sau {patience} epoch"
                 break
 
         training_time = time.time() - start
@@ -283,6 +283,7 @@ def run_experiments(X_train, X_test, y_train, y_test, configs, num_classes):
             batch_size=config["batch_size"],
             loss_threshold=config["loss_threshold"],
             patience=config["patience"],
+            min_delta=config.get("min_delta", 1e-6),
         )
 
         train_loss, train_acc, train_pred = evaluate_model(model, X_train, y_train, y_train_one_hot)
@@ -325,7 +326,7 @@ def run_experiments(X_train, X_test, y_train, y_test, configs, num_classes):
     best_index = select_best_result(results)
     for i, result in enumerate(results):
         if i == best_index:
-            result["Nhận xét"] = "Tốt nhất theo test accuracy và test loss"
+            result["Nhận xét"] = "Tốt nhất theo test accuracy; nếu bằng accuracy thì ưu tiên test loss thấp hơn"
         elif result["Train accuracy"] > result["Test accuracy"] + 0.20:
             result["Nhận xét"] = "Có dấu hiệu overfitting"
         elif result["Train accuracy"] < 0.45 and result["Test accuracy"] < 0.45:
@@ -409,7 +410,7 @@ def plot_loss_curves(histories, best_index):
         plt.plot(range(1, len(train_loss) + 1), train_loss, label=f"Config {idx}")
     plt.xlabel("Epoch")
     plt.ylabel("Train loss")
-    plt.title("Loss theo epoch cho 5 cấu hình MLP")
+    plt.title(f"Loss theo epoch cho {len(histories)} cấu hình MLP")
     plt.grid(True, alpha=0.3)
     plt.legend()
     plt.tight_layout()
@@ -485,8 +486,8 @@ def build_report_text(df, feature_names, results, histories, best_index):
     report = f"""# Xây dựng mạng nơ-ron nhân tạo đa lớp MLP phân lớp Student Performance
 
 **Môn học:** Học máy và Khai phá dữ liệu  
-**Sinh viên:** ................................................  
-**Mã sinh viên:** ..............................................  
+**Sinh viên:** Huy Nguyễn Đức  
+**Mã sinh viên:** BIT220079  
 **Ngày thực hiện:** {time.strftime('%d/%m/%Y')}
 
 ## 1. Giới thiệu bài toán
@@ -527,11 +528,11 @@ File `mlp_student_performance.py` gồm các phần chính:
 - `run_experiments`: chạy nhiều cấu hình mạng.
 - `plot_loss_curves`: vẽ biểu đồ loss.
 
-Điều kiện dừng gồm: đạt số epoch tối đa, train loss nhỏ hơn ngưỡng cho trước, hoặc loss không cải thiện sau `patience = 20` epoch.
+Điều kiện dừng gồm: đạt số epoch tối đa, train loss nhỏ hơn ngưỡng cho trước, hoặc loss không cải thiện sau một số epoch `patience` với ngưỡng cải thiện tối thiểu `min_delta`. Các cấu hình thực nghiệm có thể thay đổi `patience` và `min_delta` để minh họa dừng sớm.
 
 ## 6. Thực nghiệm
 
-Chương trình chạy 5 cấu hình MLP khác nhau:
+Chương trình chạy {len(results)} cấu hình MLP khác nhau:
 
 {markdown_table(results)}
 
@@ -551,7 +552,7 @@ Learning rate lớn giúp mô hình học nhanh hơn nhưng có thể làm loss 
 
 ## 8. Kết luận
 
-Bài làm đã cài đặt đầy đủ MLP từ đầu bằng numpy, không dùng sklearn, tensorflow, keras, pytorch hoặc classifier có sẵn. Chương trình đọc dữ liệu, tiền xử lý, chia train/test, huấn luyện 5 cấu hình, đánh giá bằng loss và accuracy, xuất bảng kết quả, vẽ biểu đồ loss và tạo báo cáo.
+Bài làm đã cài đặt đầy đủ MLP từ đầu bằng numpy, không dùng sklearn, tensorflow, keras, pytorch hoặc classifier có sẵn. Chương trình đọc dữ liệu, tiền xử lý, chia train/test, huấn luyện {len(results)} cấu hình, đánh giá bằng loss và accuracy, xuất bảng kết quả, vẽ biểu đồ loss và tạo báo cáo.
 
 Hạn chế chính là dataset nhỏ, nhiều đặc trưng dạng categorical được mã số, nên mô hình có thể chưa tổng quát tốt. Các cải tiến có thể thử gồm k-fold cross validation, điều chỉnh learning rate, thêm regularization, thử one-hot cho các đặc trưng categorical và mở rộng tìm kiếm kiến trúc mạng.
 """
@@ -677,16 +678,18 @@ def main():
     X_test = transform_minmax(X_test_raw, min_values, ranges)
 
     configs = [
-        {"hidden_layers": [16], "learning_rate": 0.01, "epochs": 500, "batch_size": 32, "loss_threshold": 0.02, "patience": 20, "seed": 11},
-        {"hidden_layers": [32], "learning_rate": 0.01, "epochs": 500, "batch_size": 32, "loss_threshold": 0.02, "patience": 20, "seed": 12},
-        {"hidden_layers": [32, 16], "learning_rate": 0.01, "epochs": 1000, "batch_size": 32, "loss_threshold": 0.02, "patience": 20, "seed": 13},
-        {"hidden_layers": [64, 32], "learning_rate": 0.005, "epochs": 1000, "batch_size": 32, "loss_threshold": 0.02, "patience": 20, "seed": 14},
-        {"hidden_layers": [64, 32, 16], "learning_rate": 0.001, "epochs": 1500, "batch_size": 32, "loss_threshold": 0.02, "patience": 20, "seed": 15},
+        {"hidden_layers": [16], "learning_rate": 0.01, "epochs": 500, "batch_size": 32, "loss_threshold": 0.02, "patience": 20, "min_delta": 1e-6, "seed": 11},
+        {"hidden_layers": [32], "learning_rate": 0.01, "epochs": 500, "batch_size": 32, "loss_threshold": 0.02, "patience": 20, "min_delta": 1e-6, "seed": 12},
+        {"hidden_layers": [32, 16], "learning_rate": 0.01, "epochs": 1000, "batch_size": 32, "loss_threshold": 0.02, "patience": 20, "min_delta": 1e-6, "seed": 13},
+        {"hidden_layers": [64, 32], "learning_rate": 0.005, "epochs": 1000, "batch_size": 32, "loss_threshold": 0.02, "patience": 20, "min_delta": 1e-6, "seed": 14},
+        {"hidden_layers": [64, 32, 16], "learning_rate": 0.001, "epochs": 1500, "batch_size": 32, "loss_threshold": 0.02, "patience": 20, "min_delta": 1e-6, "seed": 15},
+        {"hidden_layers": [16], "learning_rate": 0.01, "epochs": 1000, "batch_size": 32, "loss_threshold": 1.60, "patience": 20, "min_delta": 1e-6, "seed": 16},
+        {"hidden_layers": [16], "learning_rate": 0.0001, "epochs": 500, "batch_size": 32, "loss_threshold": 0.02, "patience": 10, "min_delta": 1e-2, "seed": 17},
     ]
 
     print(f"Dataset: {df.shape[0]} mẫu, {df.shape[1]} cột")
     print(f"Train: {X_train.shape[0]} mẫu, Test: {X_test.shape[0]} mẫu, Số đặc trưng: {X_train.shape[1]}")
-    print("Bắt đầu huấn luyện 5 cấu hình MLP tự cài đặt...\n")
+    print(f"Bắt đầu huấn luyện {len(configs)} cấu hình MLP tự cài đặt...\n")
 
     results, histories, best_index = run_experiments(X_train, X_test, y_train, y_test, configs, num_classes)
     print_results_table(results)

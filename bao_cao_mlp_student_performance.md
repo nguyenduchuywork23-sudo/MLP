@@ -1,8 +1,8 @@
 # Xây dựng mạng nơ-ron nhân tạo đa lớp MLP phân lớp Student Performance
 
 **Môn học:** Học máy và Khai phá dữ liệu  
-**Sinh viên:** ................................................  
-**Mã sinh viên:** ..............................................  
+**Sinh viên:** Huy Nguyễn Đức  
+**Mã sinh viên:** BIT220079  
 **Ngày thực hiện:** 02/06/2026
 
 ## 1. Giới thiệu bài toán
@@ -43,19 +43,21 @@ File `mlp_student_performance.py` gồm các phần chính:
 - `run_experiments`: chạy nhiều cấu hình mạng.
 - `plot_loss_curves`: vẽ biểu đồ loss.
 
-Điều kiện dừng gồm: đạt số epoch tối đa, train loss nhỏ hơn ngưỡng cho trước, hoặc loss không cải thiện sau `patience = 20` epoch.
+Điều kiện dừng gồm: đạt số epoch tối đa, train loss nhỏ hơn ngưỡng cho trước, hoặc loss không cải thiện sau một số epoch `patience` với ngưỡng cải thiện tối thiểu `min_delta`. Các cấu hình thực nghiệm có thể thay đổi `patience` và `min_delta` để minh họa dừng sớm.
 
 ## 6. Thực nghiệm
 
-Chương trình chạy 5 cấu hình MLP khác nhau:
+Chương trình chạy 7 cấu hình MLP khác nhau:
 
 | STT | Cấu trúc mạng | Learning rate | Epoch tối đa | Điều kiện dừng | Số bước lặp thực tế | Train loss | Test loss | Train accuracy | Test accuracy | Thời gian huấn luyện | Nhận xét |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | [16] | 0.01 | 500 | Đạt số epoch tối đa | 500 | 1.5462 | 1.7636 | 0.4741 | 0.3103 | 0.172s | Kết quả trung bình |
-| 2 | [32] | 0.01 | 500 | Đạt số epoch tối đa | 500 | 1.3344 | 1.8921 | 0.5172 | 0.3793 | 0.251s | Tốt nhất theo test accuracy và test loss |
-| 3 | [32, 16] | 0.01 | 1000 | Đạt số epoch tối đa | 1000 | 0.6109 | 2.0696 | 0.8621 | 0.3103 | 0.474s | Có dấu hiệu overfitting |
-| 4 | [64, 32] | 0.005 | 1000 | Đạt số epoch tối đa | 1000 | 0.8551 | 1.9898 | 0.7931 | 0.2759 | 0.548s | Có dấu hiệu overfitting |
-| 5 | [64, 32, 16] | 0.001 | 1500 | Đạt số epoch tối đa | 1500 | 1.6771 | 2.0351 | 0.4310 | 0.1724 | 0.902s | Có dấu hiệu overfitting |
+| 1 | [16] | 0.01 | 500 | Đạt số epoch tối đa | 500 | 1.5462 | 1.7636 | 0.4741 | 0.3103 | 0.251s | Kết quả trung bình |
+| 2 | [32] | 0.01 | 500 | Đạt số epoch tối đa | 500 | 1.3344 | 1.8921 | 0.5172 | 0.3793 | 0.173s | Tốt nhất theo test accuracy; nếu bằng accuracy thì ưu tiên test loss thấp hơn |
+| 3 | [32, 16] | 0.01 | 1000 | Đạt số epoch tối đa | 1000 | 0.6109 | 2.0696 | 0.8621 | 0.3103 | 0.471s | Có dấu hiệu overfitting |
+| 4 | [64, 32] | 0.005 | 1000 | Đạt số epoch tối đa | 1000 | 0.8551 | 1.9898 | 0.7931 | 0.2759 | 0.501s | Có dấu hiệu overfitting |
+| 5 | [64, 32, 16] | 0.001 | 1500 | Đạt số epoch tối đa | 1500 | 1.6771 | 2.0351 | 0.4310 | 0.1724 | 0.930s | Có dấu hiệu overfitting |
+| 6 | [16] | 0.01 | 1000 | Train loss < 1.6 | 364 | 1.5992 | 1.9293 | 0.4569 | 0.2414 | 0.147s | Có dấu hiệu overfitting |
+| 7 | [16] | 0.0001 | 500 | Loss không cải thiện ít nhất 0.01 sau 10 epoch | 11 | 2.3664 | 2.2843 | 0.1379 | 0.1034 | 0.004s | Có dấu hiệu underfitting |
 
 Biểu đồ loss của cấu hình tốt nhất được lưu tại `loss_best_config.png`. Biểu đồ loss train của toàn bộ cấu hình được lưu tại `loss_all_configs.png`.
 
@@ -82,6 +84,6 @@ Learning rate lớn giúp mô hình học nhanh hơn nhưng có thể làm loss 
 
 ## 8. Kết luận
 
-Bài làm đã cài đặt đầy đủ MLP từ đầu bằng numpy, không dùng sklearn, tensorflow, keras, pytorch hoặc classifier có sẵn. Chương trình đọc dữ liệu, tiền xử lý, chia train/test, huấn luyện 5 cấu hình, đánh giá bằng loss và accuracy, xuất bảng kết quả, vẽ biểu đồ loss và tạo báo cáo.
+Bài làm đã cài đặt đầy đủ MLP từ đầu bằng numpy, không dùng sklearn, tensorflow, keras, pytorch hoặc classifier có sẵn. Chương trình đọc dữ liệu, tiền xử lý, chia train/test, huấn luyện 7 cấu hình, đánh giá bằng loss và accuracy, xuất bảng kết quả, vẽ biểu đồ loss và tạo báo cáo.
 
 Hạn chế chính là dataset nhỏ, nhiều đặc trưng dạng categorical được mã số, nên mô hình có thể chưa tổng quát tốt. Các cải tiến có thể thử gồm k-fold cross validation, điều chỉnh learning rate, thêm regularization, thử one-hot cho các đặc trưng categorical và mở rộng tìm kiếm kiến trúc mạng.
